@@ -28,6 +28,8 @@ An end-to-end Data Science and Quantitative Finance pipeline that optimizes stoc
   - Long-only (no short selling).
   - Concentration limits: Max 15% per individual stock, max 25% per sector to mathematically enforce diversification.
 
+https://github.com/user-attachments/assets/ea28d24d-5957-4f27-8fcd-90235f5e442a
+
 ## 🚀 The App (Streamlit + LLM)
 
 ### 🌐 Live Application
