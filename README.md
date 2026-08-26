@@ -1,127 +1,59 @@
-# 📊 AI-Powered Portfolio Advisor
+# 📊 Quantitative Portfolio Allocation & ML Forecasting
 
-An end-to-end intelligent portfolio advisory system that combines **classical quantitative finance** with **machine learning** and **agentic AI** to deliver personalized investment recommendations through natural language conversation.
+An end-to-end Data Science and Quantitative Finance pipeline that optimizes stock portfolios using **Modern Portfolio Theory (Markowitz)** and forecasts asset returns using **Machine Learning (Random Forest)**. The system includes an AI-powered conversational interface to query the ML models and analytics in real-time.
 
-## 🏗️ Architecture
+## 🧠 Core Machine Learning & Quant Pipeline
 
-```
-User Query (natural language)
-       │
-       ▼
-┌──────────────┐
-│  Gemini LLM  │ ◄── System prompt + tool definitions
-│   (Agent)    │
-└──────┬───────┘
-       │ Tool calls
-       ▼
-┌──────────────────────────────────────────────────┐
-│              Tool Implementations                 │
-│                                                   │
-│  ┌─────────────┐  ┌──────────────┐               │
-│  │ Data Fetcher │  │Risk Analysis │               │
-│  │  (yfinance)  │  │  (Sharpe,    │               │
-│  │              │  │   Cov, etc.) │               │
-│  └─────────────┘  └──────────────┘               │
-│                                                   │
-│  ┌─────────────┐  ┌──────────────┐               │
-│  │  Optimizer   │  │ML Forecaster │               │
-│  │ (Markowitz   │  │(RandomForest │               │
-│  │  CVXPY)      │  │  sklearn)    │               │
-│  └─────────────┘  └──────────────┘               │
-└──────────────────────────────────────────────────┘
-       │
-       ▼
-  Natural language response + data
-```
+### 1. Feature Engineering (Time-Series)
+- Constructed predictive features from historical price data.
+- **Momentum:** 3-month and 6-month rolling averages to capture asset trends.
+- **Volatility:** 3-month and 6-month rolling standard deviations to measure risk.
+- **Market Baseline:** 1-month lagged market returns to capture macroeconomic sentiment.
 
-## ✨ Features
+### 2. Walk-Forward Validation
+- Implemented strict chronological train/test splitting to prevent **data leakage**.
+- **Training Period:** 2019-04-01 to 2022-12-31.
+- **Testing Period (Out-of-sample):** 2023-01-01 to 2025-03-31.
 
-| Feature | Description |
-|---------|-------------|
-| **Conversational Interface** | Ask questions in natural language via Streamlit chat |
-| **Markowitz Optimization** | Constrained mean-variance optimization with sector/position limits |
-| **ML Return Forecasting** | Random Forest model with walk-forward validation |
-| **Risk Analytics** | Sharpe ratios, volatility, correlation analysis |
-| **Tool-Calling Agent** | Gemini LLM autonomously selects and chains analytical tools |
-| **Live Market Data** | Real-time price fetching via yfinance |
+### 3. Return Forecasting (Random Forest)
+- Trained a `RandomForestRegressor` (scikit-learn) to predict 1-month forward returns.
+- Handled noisy financial data using strict hyperparameters (`max_depth=6`, `min_samples_leaf=8`) to prevent overfitting.
+- **Evaluation:** Achieved a **53.09% Directional Accuracy** (predicting the correct sign of the return), which provides a tradable edge and beats the zero-return naive baseline.
 
-## 🚀 Quick Start
+### 4. Portfolio Optimization (Markowitz Mean-Variance)
+- Solved the complex convex optimization problem using `cvxpy`.
+- **Objective:** Maximize expected returns while penalizing variance (risk).
+- **Constraints:** 
+  - Fully invested (weights sum to 1).
+  - Long-only (no short selling).
+  - Concentration limits: Max 15% per individual stock, max 25% per sector to mathematically enforce diversification.
 
-### 1. Install Dependencies
-```bash
-pip install -r requirements.txt
-```
+## 🚀 The App (Streamlit + LLM)
+The core ML pipeline is wrapped in a Streamlit web application. An autonomous LLM agent (powered by the Gemini API) is given access to the ML models via **Tool Calling / Function Calling**. 
 
-### 2. Get a Gemini API Key
-Get one free at [Google AI Studio](https://aistudio.google.com/apikey)
-
-### 3. Run the App
-```bash
-streamlit run app.py
-```
-
-Enter your API key in the sidebar, then start chatting!
-
-## 💬 Example Queries
-
-| Query | What the Agent Does |
-|-------|-------------------|
-| *"Build me a conservative portfolio"* | Fetches data → Runs optimization (low risk) → Explains allocation |
-| *"Compare NVDA vs AAPL risk profiles"* | Fetches data → Computes risk metrics → Compares side-by-side |
-| *"Forecast next-month returns"* | Builds features → Trains RF model → Returns predictions + metrics |
-| *"Optimize with high risk tolerance"* | Runs optimization (high risk / low λ) → Shows aggressive allocation |
+Users can ask questions in natural language (e.g., *"Forecast next month's returns for the tech sector"*), and the agent will dynamically execute the Random Forest model and Markowitz optimizer to return data-backed insights.
 
 ## 📁 Project Structure
 
 ```
 Portfolio-Allocation/
-├── app.py                    # Streamlit chat interface
-├── requirements.txt          # Python dependencies
-├── README.md
 ├── src/
-│   ├── __init__.py
-│   ├── config.py             # Stock universe, sectors, defaults
-│   ├── data_fetcher.py       # yfinance data collection
-│   ├── risk_analysis.py      # Returns, covariance, Sharpe ratios
-│   ├── optimizer.py          # Markowitz mean-variance optimization
-│   ├── ml_forecaster.py      # Random Forest return predictions
-│   └── agent.py              # Gemini AI agent with tool-calling
-└── notebooks/
-    ├── optimising portfolio.ipynb       # Original exploration
-    └── optimising portfolio copy.ipynb  # Refined analysis
+│   ├── data_fetcher.py       # yfinance API integration
+│   ├── risk_analysis.py      # Covariance & Sharpe ratio calculations
+│   ├── optimizer.py          # Markowitz CVXPY solver
+│   ├── ml_forecaster.py      # Random Forest feature engineering & training
+│   └── agent.py              # LLM Tool-Calling orchestration
+├── notebooks/
+│   ├── Portfolio_ML_Workflow.ipynb  # Pure Data Science workflow
+│   └── AI_Agent_Tutorial.ipynb      # Tool-calling tutorial
+├── app.py                    # Streamlit interface
+└── requirements.txt
 ```
 
 ## 🔧 Tech Stack
-
-- **Python** — Core language
-- **yfinance** — Market data
-- **CVXPY** — Convex optimization
-- **scikit-learn** — Random Forest ML model
-- **Google Gemini API** — LLM with tool-calling
-- **Streamlit** — Chat UI frontend
+- **Data Science:** Python, pandas, numpy, scikit-learn
+- **Quantitative Finance:** cvxpy, yfinance
+- **Deployment & Engineering:** Streamlit, Google Generative AI (Gemini Tool Calling)
 
 ## 📊 Stock Universe
-
-18 US large-cap stocks across 6 sectors:
-
-| Sector | Stocks |
-|--------|--------|
-| Technology | AAPL, MSFT, NVDA |
-| Finance | JPM, BAC, GS |
-| Energy | XOM, CVX, COP |
-| Consumer Staples | PG, KO, WMT |
-| Healthcare | JNJ, UNH, PFE |
-| Industrial | CAT, BA, MMM |
-
-## 📝 Methodology
-
-### Optimization
-- **Framework**: Markowitz mean-variance with convex constraints
-- **Constraints**: Long-only, max 10% per stock, max 25% per sector
-- **Risk tolerance**: Mapped to risk-aversion parameter λ (low=6, medium=3, high=1)
-
-### ML Forecasting
-- **Model**: Random Forest Regressor (300 trees, max depth 6)
-- **Features**: 1-month lag, 3/6-month momentum, 3/6-month volatility, market return
-- **Validation**: Walk-forward (train ≤2022, test 2023-2025)
-- **Metric**: Directional accuracy ~53%, outperforms zero-return baseline
+Analyzes 18 US large-cap stocks across 6 sectors (Tech, Finance, Energy, Consumer Staples, Healthcare, Industrial) to ensure diversified sector exposure during optimization.
