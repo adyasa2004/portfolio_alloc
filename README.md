@@ -29,6 +29,12 @@ An end-to-end Data Science and Quantitative Finance pipeline that optimizes stoc
   - Concentration limits: Max 15% per individual stock, max 25% per sector to mathematically enforce diversification.
 
 ## 🚀 The App (Streamlit + LLM)
+
+### 🌐 Live Application
+The fully functional web application is deployed and available to use here:  
+**[👉 Try the AI Portfolio Advisor App]([https://YOUR-APP-URL.streamlit.app](https://portfolioalloc-v7v2dsvoxvlogfbpabytrt.streamlit.app))**  
+*(Note: You will need a free Google Gemini API key to interact with the AI agent)*
+
 The core ML pipeline is wrapped in a Streamlit web application. An autonomous LLM agent (powered by the Gemini API) is given access to the ML models via **Tool Calling / Function Calling**. 
 
 Users can ask questions in natural language (e.g., *"Forecast next month's returns for the tech sector"*), and the agent will dynamically execute the Random Forest model and Markowitz optimizer to return data-backed insights.
